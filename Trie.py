@@ -1,10 +1,12 @@
 class Trie:
     """ Estrutura em arvore que armazena e facilita a busca de uma lista de plavras.
         Cada no representa uma letra e um caminho do no raiz ate uma folha representa uma palavra da lista"""
-    def __init__(self):
+    def __init__(self, path: str=None):
         self.raiz: dict[str, dict] = {}
         self.num_palavras: int = 0
 
+        if path is not None:
+            self.carrega_palavras(path)
 
     def insere(self, palavra: str):
         """Insere Uma nova palavra na Arvore"""
@@ -26,7 +28,7 @@ class Trie:
         return True
     
     
-    def busca_possibilidades(self, letras_disponiveis:str) -> list[str]:
+    def busca_possibilidades(self, letras_disponiveis: str) -> list[str]:
         """Gera um dicionario com a contagem das letras disponiveis para em seguida
         encontrae todas as plavras q se pode escrever com as letras disponiveis
         """
@@ -69,7 +71,7 @@ class Trie:
     def carrega_palavras(self, path:str):
         """Recebe o caminha para um txt com uma lista de palavras e carrega elas na Arvore"""
         file = open(path, "r")    
-        palavras = [palavra.upper() for palavra in file.read().split("\n") if len(palavra)]
+        palavras = [palavra.lower() for palavra in file.read().split("\n") if len(palavra)]
         #print(len(palavras))
 
         for palavra in palavras:
@@ -101,8 +103,14 @@ if __name__ == "__main__":
 
     print(arvore.busca("retina"))
 
+    print(arvore.busca("astrolabio"))
 
-    print(sorted(arvore.busca_possibilidades("BACATEPA")))
+    print(arvore.busca("adensemo"))
+
+    print(arvore.busca("d"))
+
+
+    print(sorted(arvore.busca_possibilidades("bacatepa")))
 
     
     #print(arvore.raiz)
