@@ -5,7 +5,7 @@ from Tabuleiro import Tabuleiro
 from Trie import Trie
 
 class Palavras_Cruzadas():
-    def __init__(self, trie: Trie, num_jogadores: int=2, seed: int=None):
+    def __init__(self, trie: Trie, num_jogadores: int=2, seed: float=None):
         #file = open(path_palavras, "r")    
         #palavras = [palavra.lower() for palavra in file.read().split("\n") if len(palavra)]
 
@@ -13,13 +13,14 @@ class Palavras_Cruzadas():
 
         distr_letras = [15, 3, 6, 5, 11, 2, 3, 2, 10, 1, 0, 5, 6, 4, 10, 4, 1, 6, 7, 5, 6, 3, 0, 1, 0, 1]
 
-        saco_letras = ""
+        saco_letras = "? ? ? "
         for i, num_letra in enumerate(distr_letras):
             saco_letras += (chr(97 + i) + " ") * num_letra
 
         self.saco_letras = saco_letras.split()
 
         if seed is None: seed = random.random()
+        self.seed = seed
         self.rand = random.Random(seed)
 
         self.num_jogadores = num_jogadores
@@ -41,6 +42,10 @@ class Palavras_Cruzadas():
         if pos_i == -1:#Trocar letras
             self.contador_troca_letras += 1
             letras_usadas = self.letras_jogadores[self.jogador_atual]
+            
+            #Retorna as letras n usadas ao saco
+            #self.saco_letras += [letra for letra in letras_usadas]
+
         else:
             self.contador_troca_letras = 0
             letras_usadas = self.tabuleiro.adiciona_palavra(pos_i, pos_j, horizontal, palavra)
@@ -50,6 +55,8 @@ class Palavras_Cruzadas():
         
         #remove as letras usadas da mao do jogador
         for letra in letras_usadas:
+            if letra.isupper():
+                letra = "?"
             self.letras_jogadores[self.jogador_atual] = self.letras_jogadores[self.jogador_atual].replace(letra, "")
 
         #Adiciona novas letras a mao do jogador
@@ -69,7 +76,7 @@ class Palavras_Cruzadas():
         if self.finalizado:
             restos = []
             for jogador, letras in enumerate(self.letras_jogadores):
-                resto = sum([self.tabuleiro.valor_letras[letra] for letra in letras])
+                resto = sum([self.tabuleiro.valor_letras[letra] for letra in letras if letra != "?"])
                 self.pontos_jogadores[jogador] -= resto
                 restos.append(resto)
             if len(self.letras_jogadores[self.jogador_atual]) == 0:
@@ -104,8 +111,8 @@ class Palavras_Cruzadas():
 
     
     def get_infos(self):
-        """Retorna statisticas do jogo ate o momento"""
-        return (self.pontos_jogadores, self.jogadas, self.finalizado, self.contador_troca_letras)
+        """Retorna estatisticas do jogo ate o momento"""
+        return (self.pontos_jogadores, self.finalizado, self.contador_troca_letras, len(self.saco_letras), sum(len(letras) for letras in self.letras_jogadores))#self.jogadas,
 
     def print_cenario(self, tabuleiro: bool=True, infos_jogadores: bool=True, saco_letras: bool=True):
         if self.finalizado:

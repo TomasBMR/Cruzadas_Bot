@@ -82,6 +82,7 @@ class Tabuleiro:
 
         pontos = 0
         multiplicadores = 1
+
         for i, letra in enumerate(palavra):
             if reta[pos_d + i].isdigit():
                 if letra.islower():# Letras maiusculas sao jokers "?" e não pontuam
@@ -100,10 +101,67 @@ class Tabuleiro:
             raise Exception("Posição ocupada")
         
         if horizontal:
-            return (pos_i, pos_j - len(self.tabuleiro[pos_i][:pos_j].split('0')[-1]), horizontal, self.tabuleiro[pos_i][:pos_j].split('0')[-1] + letra + self.tabuleiro[pos_i][pos_j+1:].split('0')[0])
+                     
+            if self.pos_vaga_ou_fora_tab(pos_i, pos_j+1):
+                trecho_dir = ""
+            else:
+                trecho_dir = self.tabuleiro[pos_i][pos_j+1:].split('0')[0]
+            if self.pos_vaga_ou_fora_tab(pos_i, pos_j-1):
+                trecho_esq = ""
+            else:
+                trecho_esq = self.tabuleiro[pos_i][:pos_j].split('0')[-1]
+
+            return (pos_i, pos_j - len(trecho_esq), horizontal, trecho_esq + letra + trecho_dir)
+            if self.pos_vaga_ou_fora_tab(pos_i, pos_j+1) and self.pos_vaga_ou_fora_tab(pos_i, pos_j-1):
+                return (pos_i, pos_j, horizontal, letra)
+            """inicio_palavra, fim_palavra = -1, -1
+            for j, char in enumerate(self.tabuleiro[pos_i]):#Deu errado...
+                if char.isalpha() or j == pos_j:
+                    if inicio_palavra == -1:
+                        inicio_palavra = j
+                else:
+                    if j > pos_j:
+                        fim_palavra = j# - 1
+                        break
+                    inicio_palavra = -1
+            if fim_palavra == -1: fim_palavra = len(self.tabuleiro)
+            resultado_teste = (pos_i, inicio_palavra, horizontal, self.tabuleiro[pos_i][inicio_palavra:pos_j] + letra + self.tabuleiro[pos_i][pos_j+1:fim_palavra])
+            return resultado_teste"""
+            trecho_esq = self.tabuleiro[pos_i][:pos_j].split('0')[-1]
+            return (pos_i, pos_j - len(trecho_esq), horizontal, trecho_esq + letra + self.tabuleiro[pos_i][pos_j+1:].split('0')[0])
+
         else:
+            if self.pos_vaga_ou_fora_tab(pos_i+1, pos_j) and self.pos_vaga_ou_fora_tab(pos_i-1, pos_j):
+                return (pos_i, pos_j, horizontal, letra)
+            """inicio_palavra, fim_palavra = -1, -1
+            for i, linha in enumerate(self.tabuleiro):# Deu errado...
+                #print(i, linha[pos_j].isalpha(),  i == pos_i)
+                if linha[pos_j].isalpha() or i == pos_i:
+                    if inicio_palavra == -1:
+                        inicio_palavra = i
+                else:
+                    if i > pos_i:
+                        fim_palavra = i# - 1
+                        break
+                    inicio_palavra = -1
+            if fim_palavra == -1: fim_palavra = len(self.tabuleiro[pos_j])
+            #palavra = "".join([linha[pos_j] for linha in self.tabuleiro[inicio_palavra:pos_i]]) + letra + "".join([linha[pos_j] for linha in self.tabuleiro[pos_i+1:fim_palavra]])
+            palavra = [linha[pos_j] for linha in self.tabuleiro[inicio_palavra:fim_palavra]]
+            palavra[pos_i - inicio_palavra] = letra
+            resultado_teste = (inicio_palavra, pos_j, horizontal, "".join(palavra))
+            return resultado_teste"""
             coluna = "".join([linha[pos_j] for linha in self.tabuleiro])
-            return (pos_i - len(coluna[:pos_i].split('0')[-1]), pos_j, horizontal, coluna[:pos_i].split('0')[-1] + letra + coluna[pos_i+1:].split('0')[0])
+            trecho_cima = coluna[:pos_i].split('0')[-1]
+            return (pos_i - len(trecho_cima), pos_j, horizontal, trecho_cima + letra + coluna[pos_i+1:].split('0')[0])
+            if resultado_certo != resultado_teste:
+                print(resultado_certo)
+                print(resultado_teste)
+                print(inicio_palavra, fim_palavra)
+                print(pos_i)
+                print("".join([linha[pos_j] for linha in self.tabuleiro[inicio_palavra:pos_i]]), "|", "".join([linha[pos_i] for linha in self.tabuleiro[pos_i+1:fim_palavra]]))
+                self.print_tabuleiro()
+                raise Exception("Aqui oh")
+            return resultado_certo
 
 
     def dist_cima_esq(self, pos_i: int, pos_j: int, horizontal: bool) -> int:
@@ -148,7 +206,7 @@ class Tabuleiro:
     def pos_vaga_ou_fora_tab(self, pos_i: int, pos_j: int):
         if pos_i < 0 or pos_i > 14 or pos_j < 0 or pos_j > 14:
             return True
-        return self.pos_vaga(pos_i, pos_j)
+        return self.tabuleiro[pos_i][pos_j].isdigit()
 
     
     def print_tabuleiro(self, espacos_especiais=False, func_teste=None):
@@ -191,12 +249,14 @@ if __name__ == "__main__":
     tab.print_tabuleiro(True)
 
     print(tab.adiciona_palavra(9, 1, True, "alara"))
-    tab.print_tabuleiro(True, tab.alguma_letra_adjacente)
+    tab.print_tabuleiro(True)
 
-    print(tab.dist_cima_esq(9, 0, False))
+    print(tab.palavra_ortogonal(8, 6, True, "a"))
+
+    """print(tab.dist_cima_esq(9, 0, False))
     print(tab.dist_cima_esq(9, 0, True))
     print(tab.dist_cima_esq(10, 5, True))
-    print(tab.dist_cima_esq(10, 6, False))
+    print(tab.dist_cima_esq(10, 6, False))"""
     """print(tab.pontos_palavra(5, 5, False, "azarado"))
     print(tab.pontos_palavra(5, 5, False, "azar"))
     print(tab.pontos_palavra(13, 0, True, "marcado"))"""
