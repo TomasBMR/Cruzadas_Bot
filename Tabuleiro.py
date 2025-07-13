@@ -1,12 +1,15 @@
-def palavra_to_lista(palavra:str) -> list:
-    return [(char, ()) for char in palavra]
+from Trie import Trie
 
 class Tabuleiro:
-    def __init__(self, tabuleiro: list[str] = None):
+    def __init__(self, trie: Trie, tabuleiro: list[str] = None):
         if tabuleiro is None:
            tabuleiro = ["0" * 15 for _ in range(15)]
 
         self.tabuleiro: list[str] = tabuleiro
+
+        self.letras_ortogonais: list[list[tuple[set, set]]] = [[(set(["*"]), set(["*"])) for _ in range(15)] for _ in range(15)]
+
+        self.trie: Trie = trie
 
         #0 quadrado vazio
         #2 dobro da letra
@@ -56,20 +59,63 @@ class Tabuleiro:
         #print(antes)
         #print(f"Palavra fez {self.pontos_palavra(pos_i, pos_j, horizontal, palavra)} pontos")
         letras_usadas = [letra_p for letra_a, letra_p in zip(antes, palavra) if letra_a.isdigit()]
+        self.atualiza_palavras_ortogonais(pos_i, pos_j, horizontal, palavra)
         return "".join(letras_usadas)
-        """dict_letras_usadas = {}
-        for letra in letras_usadas:
-            if letra not in dict_letras_usadas:
-                dict_letras_usadas[letra] = 1
-            else:
-                dict_letras_usadas[letra] += 1
-        return dict_letras_usadas"""
 
 
-    def pontos_palavra(self, pos_i: int, pos_j: int, horizontal: bool, palavra: str):
+    def atualiza_letras_ortogonais_pos(self, pos_i: int, pos_j: int, horizontal: bool):
+        #letra = self.tabuleiro[pos_i][pos_j]
+        palavra = self.palavra_ortogonal(pos_i, pos_j, horizontal, "")
+        pos_i = palavra[0]
+        pos_j = palavra[1]
+        palavra = palavra[3]
+
+        d = pos_j if horizontal else pos_i
+        i = pos_i if horizontal else pos_i - 1
+        j = pos_j - 1 if horizontal else pos_j
+
+        if d - 1 >= 0:
+            if self.pos_vaga(i, j):
+                self.letras_ortogonais[i][j][horizontal].clear()
+                for codigo_letra in range(26):
+                    char = chr(97 + codigo_letra)
+                    palavra_o = self.palavra_ortogonal(i, j, horizontal, char)[3]
+                    if self.trie.busca(palavra_o) and len(palavra_o):
+                        self.letras_ortogonais[i][j][horizontal].add(char)
+        
+
+        i = pos_i if horizontal else pos_i + len(palavra)
+        j = pos_j + len(palavra) if horizontal else pos_j
+        #print(i, j)
+        if d + len(palavra) <= 14:
+            if self.pos_vaga(i, j):
+                self.letras_ortogonais[i][j][horizontal].clear()
+                for codigo_letra in range(26):
+                    char = chr(97 + codigo_letra)
+                    palavra_o = self.palavra_ortogonal(i, j, horizontal, char)[3]
+                    if self.trie.busca(palavra_o) and len(palavra_o):
+                        self.letras_ortogonais[i][j][horizontal].add(char)
+
+
+
+    def atualiza_palavras_ortogonais(self, pos_i: int, pos_j: int, horizontal: bool, palavra: str):
+        """Recebe uma palavra recem adicionada ao tabuleiro
+        Atualiza as letras q podem ser usadas nas palavras ortogonais a ela"""
+
+        self.atualiza_letras_ortogonais_pos(pos_i, pos_j, horizontal)
+        for k in range(len(palavra)):
+            self.atualiza_letras_ortogonais_pos(pos_i + k*(not horizontal), pos_j + k*(horizontal), not horizontal)
+
+
+    def get_letras_ortogonais(self, pos_i: int, pos_j: int, horizontal: bool):
+        """Recebe uma posicao e direcao
+        Retorna o set de palavras ortogonais"""
+        return self.letras_ortogonais[pos_i][pos_j][horizontal]
+
+    def pontos_palavra(self, pos_i: int, pos_j: int, horizontal: bool, palavra: str) -> int:
         """Recebe uma posicao, uma direcao e uma palavra
         Retorna o numero de pontos q essa palavra faria 
-        se escrita a partir da posicao dada"""
+        se escrita a partir da posicao dada sem lecar palavras ortogonais em conta"""
         if pos_i < 0 or pos_i > 14 or pos_j < 0 or pos_j > 14:
             raise Exception("Posição fora do tabuleiro")
         
@@ -97,11 +143,14 @@ class Tabuleiro:
     def palavra_ortogonal(self, pos_i: int, pos_j: int, horizontal:bool, letra:str) -> tuple[int, int, str]:#talvez retornar a pontuação da palavra seja uma boa
         if pos_i < 0 or pos_i > 14 or pos_j < 0 or pos_j > 14:
             raise Exception("Posição fora do tabuleiro")
-        if self.tabuleiro[pos_i][pos_j].isalpha():
-            raise Exception("Posição ocupada")
+        if letra == "":
+            letra = self.tabuleiro[pos_i][pos_j]
+        else:
+            if self.tabuleiro[pos_i][pos_j].isalpha():
+                raise Exception("Posição ocupada")
+            
         
         if horizontal:
-                     
             if self.pos_vaga_ou_fora_tab(pos_i, pos_j+1):
                 trecho_dir = ""
             else:
@@ -112,56 +161,14 @@ class Tabuleiro:
                 trecho_esq = self.tabuleiro[pos_i][:pos_j].split('0')[-1]
 
             return (pos_i, pos_j - len(trecho_esq), horizontal, trecho_esq + letra + trecho_dir)
-            if self.pos_vaga_ou_fora_tab(pos_i, pos_j+1) and self.pos_vaga_ou_fora_tab(pos_i, pos_j-1):
-                return (pos_i, pos_j, horizontal, letra)
-            """inicio_palavra, fim_palavra = -1, -1
-            for j, char in enumerate(self.tabuleiro[pos_i]):#Deu errado...
-                if char.isalpha() or j == pos_j:
-                    if inicio_palavra == -1:
-                        inicio_palavra = j
-                else:
-                    if j > pos_j:
-                        fim_palavra = j# - 1
-                        break
-                    inicio_palavra = -1
-            if fim_palavra == -1: fim_palavra = len(self.tabuleiro)
-            resultado_teste = (pos_i, inicio_palavra, horizontal, self.tabuleiro[pos_i][inicio_palavra:pos_j] + letra + self.tabuleiro[pos_i][pos_j+1:fim_palavra])
-            return resultado_teste"""
-            trecho_esq = self.tabuleiro[pos_i][:pos_j].split('0')[-1]
-            return (pos_i, pos_j - len(trecho_esq), horizontal, trecho_esq + letra + self.tabuleiro[pos_i][pos_j+1:].split('0')[0])
-
+        
         else:
             if self.pos_vaga_ou_fora_tab(pos_i+1, pos_j) and self.pos_vaga_ou_fora_tab(pos_i-1, pos_j):
                 return (pos_i, pos_j, horizontal, letra)
-            """inicio_palavra, fim_palavra = -1, -1
-            for i, linha in enumerate(self.tabuleiro):# Deu errado...
-                #print(i, linha[pos_j].isalpha(),  i == pos_i)
-                if linha[pos_j].isalpha() or i == pos_i:
-                    if inicio_palavra == -1:
-                        inicio_palavra = i
-                else:
-                    if i > pos_i:
-                        fim_palavra = i# - 1
-                        break
-                    inicio_palavra = -1
-            if fim_palavra == -1: fim_palavra = len(self.tabuleiro[pos_j])
-            #palavra = "".join([linha[pos_j] for linha in self.tabuleiro[inicio_palavra:pos_i]]) + letra + "".join([linha[pos_j] for linha in self.tabuleiro[pos_i+1:fim_palavra]])
-            palavra = [linha[pos_j] for linha in self.tabuleiro[inicio_palavra:fim_palavra]]
-            palavra[pos_i - inicio_palavra] = letra
-            resultado_teste = (inicio_palavra, pos_j, horizontal, "".join(palavra))
-            return resultado_teste"""
             coluna = "".join([linha[pos_j] for linha in self.tabuleiro])
             trecho_cima = coluna[:pos_i].split('0')[-1]
             return (pos_i - len(trecho_cima), pos_j, horizontal, trecho_cima + letra + coluna[pos_i+1:].split('0')[0])
-            if resultado_certo != resultado_teste:
-                print(resultado_certo)
-                print(resultado_teste)
-                print(inicio_palavra, fim_palavra)
-                print(pos_i)
-                print("".join([linha[pos_j] for linha in self.tabuleiro[inicio_palavra:pos_i]]), "|", "".join([linha[pos_i] for linha in self.tabuleiro[pos_i+1:fim_palavra]]))
-                self.print_tabuleiro()
-                raise Exception("Aqui oh")
-            return resultado_certo
+
 
 
     def dist_cima_esq(self, pos_i: int, pos_j: int, horizontal: bool) -> int:
@@ -222,7 +229,7 @@ class Tabuleiro:
                     else:
                         char = "_"
                 if not char.isalpha() and func_teste is not None:
-                    char = "1" if func_teste(i, j) else "0"
+                    char = str(func_teste(i, j))
                 print(char + "  ", end="")
             print()
         print()
@@ -230,7 +237,9 @@ class Tabuleiro:
 
 
 if __name__ == "__main__":
-    tab = Tabuleiro()
+    path = "br-sem-acentos.txt"
+    trie = Trie(path)
+    tab = Tabuleiro(trie)
 
     #tab.tabuleiro[5] = "r0000ab0de00000"
     #tab.tabuleiro[7] = "00000astro00000"
@@ -241,18 +250,23 @@ if __name__ == "__main__":
 
     print(tab.adiciona_palavra(7, 5, True, "astro"))
     tab.print_tabuleiro(True)
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][True])
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][False])
 
     print(tab.adiciona_palavra(7, 5, False, "azar"))
     tab.print_tabuleiro(True)
 
     print(tab.adiciona_palavra(10, 5, True, "roupas"))
     tab.print_tabuleiro(True)
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][True])
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][False])
 
-    print(tab.adiciona_palavra(9, 1, True, "alara"))
+    print(tab.adiciona_palavra(9, 0, True, "falara"))
     tab.print_tabuleiro(True)
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][True])
+    tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][False])
 
     print(tab.palavra_ortogonal(8, 6, True, "a"))
-
     """print(tab.dist_cima_esq(9, 0, False))
     print(tab.dist_cima_esq(9, 0, True))
     print(tab.dist_cima_esq(10, 5, True))

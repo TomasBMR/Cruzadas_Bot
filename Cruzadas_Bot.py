@@ -74,7 +74,8 @@ class Bot:
 
         if self.tab.tabuleiro[i][j].isdigit():
             for letra in letras_disponiveis:
-                if letra in no:
+                ortogonais = self.tab.get_letras_ortogonais(i, j, not horizontal)
+                if letra in no and (letra in ortogonais or "*" in ortogonais):
                     palavra_horizontal = self.tab.palavra_ortogonal(i, j, not horizontal, letra) #tbm deve influenciar a pontuacao
                     if len(palavra_horizontal[3]) <= 1 or (len(palavra_horizontal[3]) > 1 and self.trie.busca(palavra_horizontal[3])):
                         especial = int(self.tab.quadrados_especiais[i][j])
@@ -98,7 +99,8 @@ class Bot:
 
                 elif letra == "?": #Joker
                     for possib in no:
-                        if possib != "\n":
+                        ortogonais = self.tab.get_letras_ortogonais(i, j, not horizontal)
+                        if possib != "\n" and (possib in ortogonais or "*" in ortogonais):
                             palavra_horizontal = self.tab.palavra_ortogonal(i, j, not horizontal, possib.upper())
                             if len(palavra_horizontal[3]) <= 1 or (len(palavra_horizontal[3]) > 1 and self.trie.busca(palavra_horizontal[3])):
                                 especial = int(self.tab.quadrados_especiais[i][j])

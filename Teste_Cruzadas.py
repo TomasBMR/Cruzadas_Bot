@@ -26,6 +26,8 @@ def rodar_partida(prints: bool=False, seed: int=None):
             jogo.fazer_jogada(jogada[0], jogada[1], jogada[2], jogada[3], jogada[4])
             #jogo.fazer_jogada(jogada[0][0], jogada[0][1], jogada[0][2], jogada[0][3], jogada[2])
             if prints: jogo.print_cenario(infos_jogadores=False, saco_letras=False)
+            if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][True])
+            if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][False])
             if prints: print(jogada)
             if jogo.finalizado:
                 if prints: jogo.print_cenario(tabuleiro=False)
@@ -55,15 +57,17 @@ print(time()-t0)"""
 
 #cProfile.run('rodar_partida(prints=False, seed=42)')
 
-#rodar_partida(prints=True)#, seed=42)
+#jogadas = rodar_partida(prints=True, seed=42)[-1]
 
-num_jogos = 50
+#print([jogada[:5] for jogada in jogadas])
+
+num_jogos = 30
 infos = []
 tempos = []
 for i in range(num_jogos):
     print(i)
     t0 = time()
-    info = rodar_partida(prints=False)
+    info = rodar_partida(prints=False, seed=i)
     tempo = (time() - t0)
     infos.append(info)
     tempos.append(tempo)

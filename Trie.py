@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     print(arvore.busca("adensemo"))
 
-    print(arvore.busca("d"))
+    print(arvore.busca("falarah"))
 
 
     print(sorted(arvore.busca_possibilidades("bacatepa")))

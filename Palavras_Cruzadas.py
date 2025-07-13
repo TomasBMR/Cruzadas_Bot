@@ -27,7 +27,7 @@ class Palavras_Cruzadas():
         self.letras_jogadores = [self.sorteia_letras(7) for _ in range(num_jogadores)]
         self.pontos_jogadores = [0 for _ in range(num_jogadores)]
 
-        self.tabuleiro = Tabuleiro()
+        self.tabuleiro = Tabuleiro(self.trie)
 
         self.contador_jogadas = 0
         self.jogador_atual = 0
@@ -112,7 +112,7 @@ class Palavras_Cruzadas():
     
     def get_infos(self):
         """Retorna estatisticas do jogo ate o momento"""
-        return (self.pontos_jogadores, self.finalizado, self.contador_troca_letras, len(self.saco_letras), sum(len(letras) for letras in self.letras_jogadores))#self.jogadas,
+        return (self.pontos_jogadores, self.finalizado, self.contador_troca_letras, len(self.saco_letras), sum(len(letras) for letras in self.letras_jogadores), self.jogadas)
 
     def print_cenario(self, tabuleiro: bool=True, infos_jogadores: bool=True, saco_letras: bool=True):
         if self.finalizado:
