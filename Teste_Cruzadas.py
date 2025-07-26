@@ -5,18 +5,23 @@ from time import time
 import cProfile
 
 from Trie import Trie
+from Gaddag import Gaddag
 from Palavras_Cruzadas import Palavras_Cruzadas
 from Cruzadas_Bot import Bot
+from Cruzadas_Bot_Gaddag import Gaddag_Bot
+
 
 
 path = "br-sem-acentos.txt"
 
-trie = Trie(path)
+trie = Trie( path )
+gaddag = Gaddag( path )
+print("Palavras_Carregadas")
 
-
-def rodar_partida(prints: bool=False, seed: int=None):
+def rodar_partida_bot_Trie(prints: bool=False, seed: int=None):
     jogo = Palavras_Cruzadas(trie, seed=seed)
     bot = Bot(jogo.tabuleiro, trie)
+    
     try:
         if prints: jogo.print_cenario()
         while True:
@@ -26,8 +31,8 @@ def rodar_partida(prints: bool=False, seed: int=None):
             jogo.fazer_jogada(jogada[0], jogada[1], jogada[2], jogada[3], jogada[4])
             #jogo.fazer_jogada(jogada[0][0], jogada[0][1], jogada[0][2], jogada[0][3], jogada[2])
             if prints: jogo.print_cenario(infos_jogadores=False, saco_letras=False)
-            if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][True])
-            if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][False])
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][True])
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][False])
             if prints: print(jogada)
             if jogo.finalizado:
                 if prints: jogo.print_cenario(tabuleiro=False)
@@ -38,6 +43,74 @@ def rodar_partida(prints: bool=False, seed: int=None):
     except:
         raise Exception(f"Nao sei qual o erro mas a seed eh {jogo.seed}")
     return jogo.get_infos()
+
+def rodar_partida_bot_Gaddag(prints: bool=False, seed: int=None):
+    jogo = Palavras_Cruzadas(trie, seed=seed)
+    bot = Gaddag_Bot(jogo.tabuleiro, trie, gaddag)
+    
+    try:
+        if prints: jogo.print_cenario()
+        while True:
+            jogada = bot.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            if prints: jogo.print_cenario(tabuleiro=False)
+            #print(jogada)
+            jogo.fazer_jogada(jogada[0], jogada[1], jogada[2], jogada[3], jogada[4])
+            #jogo.fazer_jogada(jogada[0][0], jogada[0][1], jogada[0][2], jogada[0][3], jogada[2])
+            if prints: jogo.print_cenario(infos_jogadores=False, saco_letras=False)
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][True])
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][False])
+            if prints: print(jogada)
+            if jogo.finalizado:
+                if prints: jogo.print_cenario(tabuleiro=False)
+                if jogo.get_infos()[0][0]<1 or jogo.get_infos()[0][1]<1:
+                    raise Exception("negativo parca!")
+                break
+            if prints: input()
+    except:
+        raise Exception(f"Nao sei qual o erro mas a seed eh {jogo.seed}")
+    return jogo.get_infos()
+
+
+def compara_funcionamento_bots(prints: bool=False, seed: int=None):
+    jogo = Palavras_Cruzadas(trie, seed=seed)
+    #bot = Bot(jogo.tabuleiro, trie)
+    bot1 = Bot( jogo.tabuleiro, trie )
+    bot2 = Gaddag_Bot( jogo.tabuleiro, trie, gaddag )
+    try:
+        if prints: jogo.print_cenario()
+        while True:
+            jogada_certa = bot1.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            jogada_teste = bot2.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            if jogada_certa[:4] != jogada_teste[:4]:
+
+                print("Diferentes!!")
+                print(jogada_certa)
+                print(jogada_teste)
+                if jogada_certa[4] != jogada_teste[4]:
+                    raise Exception("Diferente!")
+            else:
+                pass
+                #print("Igual")
+
+            if prints: jogo.print_cenario(tabuleiro=False)
+            #print(jogada_certa)
+            jogo.fazer_jogada(jogada_certa[0], jogada_certa[1], jogada_certa[2], jogada_certa[3], jogada_certa[4])
+            #jogo.fazer_jogada(jogada[0][0], jogada[0][1], jogada[0][2], jogada[0][3], jogada[2])
+            if prints: jogo.print_cenario(infos_jogadores=False, saco_letras=False)
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][True])
+            #if prints: jogo.tabuleiro.print_tabuleiro(True, func_teste=lambda i, j: jogo.tabuleiro.letras_ortogonais[i][j][False])
+            if prints: print(jogada_certa)
+            if jogo.finalizado:
+                if prints: jogo.print_cenario(tabuleiro=False)
+                if jogo.get_infos()[0][0]<1 or jogo.get_infos()[0][1]<1:
+                    raise Exception("negativo parca!")
+                break
+            if prints: input()
+    except:
+        raise Exception(f"Nao sei qual o erro mas a seed eh {jogo.seed}")
+    return jogo.get_infos()
+
+
 
 """def aux():
     return [1]
@@ -57,21 +130,41 @@ print(time()-t0)"""
 
 #cProfile.run('rodar_partida(prints=False, seed=42)')
 
+#jogadas = compara_funcionamento_bots(prints=True, seed=0)[-1]
+
+
 #jogadas = rodar_partida(prints=True, seed=42)[-1]
 
 #print([jogada[:5] for jogada in jogadas])
 
-num_jogos = 30
+num_jogos = 1
 infos = []
 tempos = []
 for i in range(num_jogos):
     print(i)
     t0 = time()
-    info = rodar_partida(prints=False, seed=i)
+    info = rodar_partida_bot_Trie(prints=False, seed=i)
     tempo = (time() - t0)
     infos.append(info)
     tempos.append(tempo)
-    print(info[0])
+    #print(info[0])
+    print(tempo)
+
+print(f"media tempo Trie: {np.mean(tempos)}")
+print(f"variancia tempo Trie: {np.var(tempos)}")
+
+
+num_jogos = 50
+infos = []
+tempos = []
+for i in range(num_jogos):
+    print(i)
+    t0 = time()
+    info = rodar_partida_bot_Gaddag( prints=False )
+    tempo = (time() - t0)
+    infos.append(info)
+    tempos.append(tempo)
+    #print(info[0])
     print(tempo)
 
 

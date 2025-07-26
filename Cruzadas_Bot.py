@@ -18,6 +18,8 @@ class Bot:
         self.jogadas.sort( key=lambda x: x[4] )
 
         if len(self.jogadas):
+            #print(self.jogadas[-50:])
+            #print("Trie^^^")
             return self.jogadas[-1]
         else:
             #Falta implementar essa logica
@@ -39,7 +41,7 @@ class Bot:
                 if char.isalpha() or (self.tab.alguma_letra_adjacente(i, j)) or (i == 7 and j == 7):
 
                     #Busca na vertical
-                    if (dist := min(6 + (not primeiro_lance), self.tab.dist_cima_esq(i, j, False))) > 0:
+                    if (dist := min(6 + (not primeiro_lance), self.tab.dist_cima_esq(i, j, False))) >= 0:
                         self.pos_j = j
                         self.horizontal = False
                         for d in range(dist + 1):
@@ -47,7 +49,7 @@ class Bot:
                             self._busca_jogadas( i - dist + d, j, False, letras_dict, "", self.trie.raiz)
                     
                     #Busca na horizontal
-                    if (dist := min(6 + (not primeiro_lance), self.tab.dist_cima_esq(i, j, True))) > 0:
+                    if (dist := min(6 + (not primeiro_lance), self.tab.dist_cima_esq(i, j, True))) >= 0:
                         self.pos_i = i
                         self.horizontal = True
                         for d in range(dist + 1):
@@ -60,7 +62,8 @@ class Bot:
                        prefixo: list[str, tuple[int, int]], 
                        no: dict[str, dict], conectou: bool=False, 
                        pontos: int=0, multiplicadores: int=1,
-                       palavras_ortogonais: list[str]=[]):
+                       palavras_ortogonais: list[str]=[], infos=[]):
+        #infos = infos + [(i, j)]
 
         if "\n" in no and sum(letras_disponiveis.values()) < self.num_letras and  conectou and self.tab.pos_vaga_ou_fora_tab(i, j):
             bonus = 50 if sum(letras_disponiveis.values()) == 0 and self.num_letras == 7 else 0
@@ -95,7 +98,7 @@ class Bot:
                         self._busca_jogadas(i + (not horizontal), j + horizontal, horizontal, 
                                             letras_q_sobram, prefixo + letra, no[letra], conectou,
                                             pontos + valor_letra, multiplicadores * multiplicador,
-                                            palavras_ortogonais + palavras_ortogonal)
+                                            palavras_ortogonais + palavras_ortogonal, infos)
 
                 elif letra == "?": #Joker
                     for possib in no:
@@ -119,7 +122,7 @@ class Bot:
                                 self._busca_jogadas(i + (not horizontal), j + horizontal, horizontal, 
                                                     letras_q_sobram, prefixo + possib.upper(), no[possib], conectou,
                                                     pontos, multiplicadores * multiplicador,
-                                                    palavras_ortogonais + palavras_ortogonal)
+                                                    palavras_ortogonais + palavras_ortogonal, infos)
 
         else:
             if (letra := self.tab.tabuleiro[i][j]).lower() in no:
@@ -127,22 +130,47 @@ class Bot:
                 self._busca_jogadas(i + (not horizontal), j + horizontal, horizontal,
                                     letras_disponiveis, prefixo + letra, no[letra.lower()], True,
                                     pontos + valor_letra, multiplicadores,
-                                    palavras_ortogonais)
+                                    palavras_ortogonais, infos)
 
-
-    def calc_pontos(self, prefixo: list[str, tuple[int, int]]):
+    """def calc_pontos(self, prefixo: list[str, tuple[int, int]]):
         pontos = 0
         for letra in prefixo:
-            pontos += letra
+            pontos += letra"""
 
 
 if __name__ == "__main__":
     trie = Trie()
     trie.carrega_palavras( "br-sem-acentos.txt" )
 
-    tabu = Tabuleiro()
-    #tab.adiciona_palavra( 7, 5, True, "astro" )
-    """tab.adiciona_palavra(1, 9, False, "valiamos")#72
+    tab = Tabuleiro(trie)
+    bot = Bot( tab, trie )
+
+
+    tab.adiciona_palavra(7, 6, True, "xas")
+    tab.adiciona_palavra(8, 1, True, 'papeeis')
+    tab.adiciona_palavra(7, 4, False, 'medi')
+    tab.adiciona_palavra(0, 7, False, 'Panoramas')
+    tab.adiciona_palavra(4, 3, True, 'liberam')
+    tab.adiciona_palavra(1, 6, True, 'capacite')
+    tab.adiciona_palavra(0, 11, False, 'cirCunde')
+    tab.adiciona_palavra(7, 10, True, 'vezEs')
+    tab.adiciona_palavra(0, 14, False, 'digo')
+
+
+
+    tab.print_tabuleiro(True)
+    #print(bot.escolhe_melhor_jogada("fretaro", True))
+    melhor_jogada = bot.escolhe_melhor_jogada("nroetvq", True)
+    #melhor_jogada = bot.escolhe_melhor_jogada("homidig", True)
+
+    print(melhor_jogada)
+
+    tab.adiciona_palavra(*melhor_jogada[:4])
+    
+    tab.print_tabuleiro(True)
+
+    """tab.adiciona_palavra( 7, 5, True, "astro" )
+    tab.adiciona_palavra(1, 9, False, "valiamos")#72
     tab.adiciona_palavra(5, 5, False, "lha")#11
     tab.adiciona_palavra(4, 8, True, "fim")#12
     tab.adiciona_palavra(2, 8, True, "gaste")#28
@@ -166,11 +194,5 @@ if __name__ == "__main__":
 
     #tab.adiciona_palavra(9, 7, False, 'diziam')#26"""
 
-
-    bot = Bot( tabu, trie )
-
-    tabu.print_tabuleiro(True)
-
-    print(bot.escolhe_melhor_jogada("dxaozii", True))
 
     #tab.print_tabuleiro(True)

@@ -201,6 +201,19 @@ class Tabuleiro:
         if pos_j - 1 >= 0:
             v = v or self.tabuleiro[pos_i][pos_j-1].isalpha()
         return h or v
+    
+
+    def qual_letra_adjacente(self, pos_i: int, pos_j: int):
+        v_c, v_b, h_e, h_d = False, False, False, False
+        if pos_i + 1 <= 14:
+            v_b = self.tabuleiro[pos_i+1][pos_j].isalpha()
+        if pos_i - 1 >= 0:
+            v_c = self.tabuleiro[pos_i-1][pos_j].isalpha()
+        if pos_j + 1 <= 14:
+            h_d = self.tabuleiro[pos_i][pos_j+1].isalpha()
+        if pos_j - 1 >= 0:
+            h_e = self.tabuleiro[pos_i][pos_j-1].isalpha()
+        return (v_c, v_b, h_e, h_d)
 
 
     def pos_vaga(self, pos_i: int, pos_j: int):
@@ -209,6 +222,7 @@ class Tabuleiro:
         if pos_i < 0 or pos_i > 14 or pos_j < 0 or pos_j > 14:
             raise Exception("Posição fora do tabuleiro")
         return self.tabuleiro[pos_i][pos_j].isdigit()
+    
     
     def pos_vaga_ou_fora_tab(self, pos_i: int, pos_j: int):
         if pos_i < 0 or pos_i > 14 or pos_j < 0 or pos_j > 14:
@@ -246,7 +260,18 @@ if __name__ == "__main__":
     #tab.tabuleiro[10]= "a000000os000000"
     #tab.tabuleiro[14]= "000000000000000"
 
-    tab.print_tabuleiro(True)
+    tab.adiciona_palavra(7, 7, True, "gato")
+    tab.adiciona_palavra(7, 7, False, "gato")
+    tab.print_tabuleiro()
+    print(tab.dist_cima_esq(8, 8, True))
+    print(tab.dist_cima_esq(8, 8, False))
+
+    print(tab.dist_cima_esq(9, 8, True))
+    print(tab.dist_cima_esq(8, 9, False))
+
+    print(tab.dist_cima_esq(9, 1, True))
+
+    """tab.print_tabuleiro(True)
 
     print(tab.adiciona_palavra(7, 5, True, "astro"))
     tab.print_tabuleiro(True)
@@ -266,7 +291,7 @@ if __name__ == "__main__":
     tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][True])
     tab.print_tabuleiro(True, func_teste=lambda i, j: tab.letras_ortogonais[i][j][False])
 
-    print(tab.palavra_ortogonal(8, 6, True, "a"))
+    print(tab.palavra_ortogonal(8, 6, True, "a"))"""
     """print(tab.dist_cima_esq(9, 0, False))
     print(tab.dist_cima_esq(9, 0, True))
     print(tab.dist_cima_esq(10, 5, True))

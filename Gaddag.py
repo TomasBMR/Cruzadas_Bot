@@ -1,6 +1,8 @@
-class Trie:
+import time
+from Trie import Trie
+class Gaddag:
     """ Estrutura em arvore que armazena e facilita a busca de uma lista de plavras.
-        Cada no representa uma letra e um caminho do no raiz ate uma folha representa uma palavra da lista"""
+        Semelhante a Trie mas cada palavra eh representada n vezes em que n eh o numero de letras na palavra"""
     def __init__(self, path: str=None):
         self.raiz: dict[str, dict] = {}
         self.num_palavras: int = 0
@@ -10,14 +12,17 @@ class Trie:
             self.carrega_palavras(path)
 
     def insere(self, palavra: str):
-        """Insere Uma nova palavra na Arvore"""
-        no = self.raiz
-        for letra in palavra + "\n":
-            if letra not in no:
-                no[letra] = {}
-                self.num_nos += 1
-            no = no[letra]
-        self.num_palavras += 1
+        """Insere uma palavra na Arvore"""
+        for i, _ in enumerate(palavra):
+            pal = palavra[i:] + "+" + palavra[i::-1][1:] + "\n"
+            #print(f"inserindo {pal}")
+            no = self.raiz
+            for letra in pal:
+                if letra not in no:
+                    no[letra] = {}
+                    self.num_nos += 1
+                no = no[letra]
+            self.num_palavras += 1
         
 
     def busca(self, palavra: str) -> bool:
@@ -75,44 +80,22 @@ class Trie:
         file = open(path, "r")    
         palavras = [palavra.lower() for palavra in file.read().split("\n") if len(palavra)]
         #print(len(palavras))
+        #print(sum([len(palavra) for palavra in palavras])/len(palavras))
 
         for palavra in palavras:
             self.insere(palavra)
 
 
-
 if __name__ == "__main__":
-    arvore = Trie()
-
-    """arvore.insere("abc")
-    arvore.insere("ab")
-    arvore.insere("a")
-
-    print(arvore.busca_possibilidades("a"))"""
-          
-    """file = open("br-sem-acentos.txt", "r")    
-    palavras = [palavra.lower() for palavra in file.read().split("\n") if len(palavra)]
-    #print(len(palavras))
-
-    for palavra in palavras:
-        arvore.insere(palavra)"""
-    
-    arvore.carrega_palavras( "br-sem-acentos.txt" )
-
-    #print(list(arvore.raiz.keys()))
-
-    #print(arvore.num_palavras)
-
-    print(arvore.busca("retina"))
-
-    print(arvore.busca("astrolabio"))
-
-    print(arvore.busca("adensemo"))
-
-    #print(arvore.busca("gim"))
-
-
-    print(sorted(arvore.busca_possibilidades("bacatepa")))
-
-    
-    #print(arvore.raiz)
+    path = "br-sem-acentos.txt"
+    #print("começou")
+    #t0 = time.time()
+    #trie = Trie(path)
+    #print(time.time()-t0)
+    print("começou")
+    t0 = time.time()
+    gaddag = Gaddag()
+    gaddag.insere("gato")
+    print(time.time()-t0)
+    print(gaddag.num_palavras)
+    print(gaddag.num_nos)
