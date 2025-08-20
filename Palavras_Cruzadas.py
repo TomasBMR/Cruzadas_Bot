@@ -10,7 +10,6 @@ class Palavras_Cruzadas():
         #palavras = [palavra.lower() for palavra in file.read().split("\n") if len(palavra)]
 
         self.trie = trie
-
         distr_letras = [15, 3, 6, 5, 11, 2, 3, 2, 10, 1, 0, 5, 6, 4, 10, 4, 1, 6, 7, 5, 6, 3, 0, 1, 0, 1]
 
         saco_letras = "? ? ? "
@@ -112,7 +111,14 @@ class Palavras_Cruzadas():
     
     def get_infos(self):
         """Retorna estatisticas do jogo ate o momento"""
-        return (self.pontos_jogadores, self.finalizado, self.contador_troca_letras, len(self.saco_letras), sum(len(letras) for letras in self.letras_jogadores), self.jogadas)
+        return {"Pontos jogadores": tuple(self.pontos_jogadores),
+                "Finalizado": self.finalizado, 
+                "Contador_troca_letras": self.contador_troca_letras,
+                "Letras res no saco": len(self.saco_letras), 
+                "Letras res na mao": sum(len(letras) for letras in self.letras_jogadores), 
+                "Jogaodr com letras na mao": 0 if self.letras_jogadores[0] else 1,
+                "Num jogadas": self.contador_jogadas,
+                "seed": self.seed}
 
     def print_cenario(self, tabuleiro: bool=True, infos_jogadores: bool=True, saco_letras: bool=True):
         if self.finalizado:
@@ -132,6 +138,10 @@ class Palavras_Cruzadas():
 
 
 if __name__ == "__main__":
-    jogo = Palavras_Cruzadas("br-sem-acentos.txt", 2)
+    path = "br-sem-acentos.txt"
+    trie = Trie(path)
+    jogo = Palavras_Cruzadas( trie, 2 )
 
     jogo.print_cenario()
+
+    print(jogo.get_infos())
