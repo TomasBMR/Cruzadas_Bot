@@ -20,10 +20,10 @@ class Bot:
         if len(self.jogadas):
             #print(self.jogadas[-50:])
             #print("Trie^^^")
-            return self.jogadas[-1]
+            return self.jogadas[-1], self.jogadas
         else:
             #Falta implementar essa logica
-            return(-1, -1, True, "", 0, 0, [])#A string deveria ser as letras a serem trocadas
+            return(-1, -1, True, "", 0, 0, []), self.jogadas#A string deveria ser as letras a serem trocadas
 
     def busca_jogadas_possiveis(self, letras: str, primeiro_lance: bool=False):
         letras_dict = {}
@@ -67,7 +67,7 @@ class Bot:
 
         if "\n" in no and sum(letras_disponiveis.values()) < self.num_letras and  conectou and self.tab.pos_vaga_ou_fora_tab(i, j):
             bonus = 50 if sum(letras_disponiveis.values()) == 0 and self.num_letras == 7 else 0
-            self.jogadas.append((self.pos_i, self.pos_j, self.horizontal, prefixo, pontos * multiplicadores + sum([ponto[0] for ponto in palavras_ortogonais]) + bonus, palavras_ortogonais))
+            self.jogadas.append((self.pos_i, self.pos_j, self.horizontal, prefixo, pontos * multiplicadores + sum([ponto[0] for ponto in palavras_ortogonais]) + bonus))#, palavras_ortogonais))
         
         if self.primeiro_lance and i==7 and j==7:
             conectou = True
