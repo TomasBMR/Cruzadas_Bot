@@ -6,7 +6,7 @@ class Trie:
         self.num_palavras: int = 0
         self.num_nos: int = 0
 
-        if path:
+        if path is not None:
             self.carrega_palavras(path)
 
     def insere(self, palavra: str):
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     print(arvore.busca("astrolabio"))
 
-    print(arvore.busca("moisaico"))
+    print(arvore.busca("adensemo"))
 
     #print(arvore.busca("gim"))
 

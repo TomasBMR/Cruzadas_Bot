@@ -36,7 +36,7 @@ def rodar_partida_bot_Trie(prints: bool=False, seed: int=None):
             if prints: print(jogada)
             if jogo.finalizado:
                 if prints: jogo.print_cenario(tabuleiro=False)
-                if jogo.get_infos()["Pontos jogadores"][0]<1 or jogo.get_infos()["Pontos jogadores"][1]<1:
+                if jogo.get_infos()[0][0]<1 or jogo.get_infos()[0][1]<1:
                     raise Exception("negativo parca!")
                 break
             if prints: input()
@@ -51,7 +51,7 @@ def rodar_partida_bot_Gaddag(prints: bool=False, seed: int=None):
     try:
         if prints: jogo.print_cenario()
         while True:
-            jogada, jogadas = bot.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            jogada = bot.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
             if prints: jogo.print_cenario(tabuleiro=False)
             #print(jogada)
             jogo.fazer_jogada(jogada[0], jogada[1], jogada[2], jogada[3], jogada[4])
@@ -62,7 +62,7 @@ def rodar_partida_bot_Gaddag(prints: bool=False, seed: int=None):
             if prints: print(jogada)
             if jogo.finalizado:
                 if prints: jogo.print_cenario(tabuleiro=False)
-                if jogo.get_infos()["Pontos jogadores"][0]<1 or jogo.get_infos()["Pontos jogadores"][1]<1:
+                if jogo.get_infos()[0][0]<1 or jogo.get_infos()[0][1]<1:
                     raise Exception("negativo parca!")
                 break
             if prints: input()
@@ -79,11 +79,11 @@ def compara_funcionamento_bots(prints: bool=False, seed: int=None):
     try:
         if prints: jogo.print_cenario()
         while True:
-            jogada_certa, jogadas_certas = bot1.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
-            jogada_teste, jogadas_teste = bot2.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            jogada_certa = bot1.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
+            jogada_teste = bot2.escolhe_melhor_jogada(jogo.get_letras_jogador_atual(), jogo.tabuleiro.pos_vaga(7, 7))
             if jogada_certa[:4] != jogada_teste[:4]:
 
-                print("Melhor jogada Diferentes!!")
+                print("Diferentes!!")
                 print(jogada_certa)
                 print(jogada_teste)
                 if jogada_certa[4] != jogada_teste[4]:
@@ -91,10 +91,6 @@ def compara_funcionamento_bots(prints: bool=False, seed: int=None):
             else:
                 pass
                 #print("Igual")
-            if set(jogadas_teste) != set(jogadas_certas):
-                print("Jogadas diferentes")
-                print(set(jogadas_certas) ^ set(jogadas_teste))
-                raise Exception("Jogadas Diferentes!")
 
             if prints: jogo.print_cenario(tabuleiro=False)
             #print(jogada_certa)
@@ -106,7 +102,7 @@ def compara_funcionamento_bots(prints: bool=False, seed: int=None):
             if prints: print(jogada_certa)
             if jogo.finalizado:
                 if prints: jogo.print_cenario(tabuleiro=False)
-                if jogo.get_infos()["Pontos jogadores"][0]<1 or jogo.get_infos()["Pontos jogadores"][1]<1:
+                if jogo.get_infos()[0][0]<1 or jogo.get_infos()[0][1]<1:
                     raise Exception("negativo parca!")
                 break
             if prints: input()
@@ -137,12 +133,11 @@ print(time()-t0)"""
 #jogadas = compara_funcionamento_bots(prints=True, seed=0)[-1]
 
 
-jogadas = rodar_partida_bot_Gaddag(prints=True)
-
+#jogadas = rodar_partida(prints=True, seed=42)[-1]
 
 #print([jogada[:5] for jogada in jogadas])
 
-"""num_jogos = 0
+num_jogos = 1
 infos = []
 tempos = []
 for i in range(num_jogos):
@@ -156,16 +151,15 @@ for i in range(num_jogos):
     print(tempo)
 
 print(f"media tempo Trie: {np.mean(tempos)}")
-print(f"variancia tempo Trie: {np.var(tempos)}")"""
+print(f"variancia tempo Trie: {np.var(tempos)}")
 
 
-num_jogos = 100
+num_jogos = 50
 infos = []
 tempos = []
 for i in range(num_jogos):
     print(i)
     t0 = time()
-    #info = compara_funcionamento_bots()
     info = rodar_partida_bot_Gaddag( prints=False )
     tempo = (time() - t0)
     infos.append(info)
@@ -180,25 +174,24 @@ v_d_e = []
 letras_no_saco = []
 letras_na_mao = []
 num_jogos_sem_sobra = 0
-diferencas = []
 
 v = 0
 d = 0
 e = 0
 for info in infos:
-    pontos_1.append(info["Pontos jogadores"][0])
-    pontos_2.append(info["Pontos jogadores"][1])
-    diferencas.append(info["Pontos jogadores"][0] - info["Pontos jogadores"][1])
-    if info["Pontos jogadores"][0] - info["Pontos jogadores"][1]>0:
+    pontos_1.append(info[0][0])
+    pontos_2.append(info[0][1])
+    v_d_e.append(info[0][0] - info[0][1])
+    if info[0][0] - info[0][1]>0:
         v += 1
         v_d_e.append(1)
-    elif info["Pontos jogadores"][0] - info["Pontos jogadores"][1]<0:
+    elif info[0][0] - info[0][1]<0:
         d += 1
         v_d_e.append(0)
     else:
         e += 1
         v_d_e.append(-1)
-    if info["Contador_troca_letras"] < 5:
+    if info[2] == 0:
         num_jogos_sem_sobra += 1
     else:
         letras_no_saco.append(info[3])
@@ -222,9 +215,9 @@ if num_jogos > 0:
     ax1.set_title("hist pontos primeiro e segundo jogador")
     ax1.legend()
 
-    ax2.hist(diferencas, alpha=0.6)
-    ax2.axvline(np.mean(diferencas), label=f'media dif: {np.mean(diferencas)}')
-    ax2.axvline(np.median(diferencas), label=f'mediana dif: {np.median(diferencas)}')
+    ax2.hist(v_d_e, alpha=0.6)
+    ax2.axvline(np.mean(v_d_e), label=f'media dif: {np.mean(v_d_e)}')
+    ax2.axvline(np.mean(v_d_e), label=f'mediana dif: {np.median(v_d_e)}')
 
     ax2.set_title("hist diferenca jogadores")
     ax2.legend()

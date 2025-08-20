@@ -25,10 +25,10 @@ class Gaddag_Bot:
         if len(self.jogadas):
             #print(self.jogadas[-15:])
             #print("Gaddag^^^")
-            return self.jogadas[-1], self.jogadas
+            return self.jogadas[-1]
         else:
             #Falta implementar essa logica
-            return(-1, -1, True, "", 0), [(-1, -1, True, "", 0)]#A string deveria ser as letras a serem trocadas
+            return(-1, -1, True, "", 0, 0, [])#A string deveria ser as letras a serem trocadas
 
     def busca_jogadas_possiveis(self, letras: str, primeiro_lance: bool=False):
         letras_dict = {}
@@ -60,12 +60,9 @@ class Gaddag_Bot:
                     if v_c or v_b:#Aqui vai ter que remover redundancia
                         self.horizontal = True
                         self._busca_jogadas(i, j, True, letras_dict, "", self.gaddag.raiz)
-                        #self._busca_jogadas_Trie(i, j, True, letras_dict, "", self.trie.raiz)
                     if h_e or h_d:
                         self.horizontal = False
                         self._busca_jogadas(i, j, False, letras_dict, "", self.gaddag.raiz)
-                        #self._busca_jogadas_Trie(i, j, False, letras_dict, "", self.trie.raiz)
-
                         
 
                     
@@ -93,7 +90,7 @@ class Gaddag_Bot:
         if "\n" in no and sum(letras_disponiveis.values()) < self.num_letras and self.tab.pos_vaga_ou_fora_tab(i, j):
             bonus = 50 if sum(letras_disponiveis.values()) == 0 and self.num_letras == 7 else 0
             #sinal_sentido = 1 if sentido else -1
-            self.jogadas.append((i + (not horizontal), j + horizontal, self.horizontal, prefixo, pontos * multiplicadores + sum([ponto[0] for ponto in palavras_ortogonais]) + bonus))#, palavras_ortogonais, caminho, infos))
+            self.jogadas.append((i + (not horizontal), j + horizontal, self.horizontal, prefixo, pontos * multiplicadores + sum([ponto[0] for ponto in palavras_ortogonais]) + bonus, palavras_ortogonais, caminho, infos))
             #if prefixo=='duplos':
             #    print(self.jogadas[-1])
         if "+" in no and self.tab.pos_vaga_ou_fora_tab(i, j): #Constroi inicio da palavra para traz
@@ -180,96 +177,12 @@ class Gaddag_Bot:
                                     pontos + valor_letra, multiplicadores,
                                     palavras_ortogonais, caminho + letra, infos + [("inter", i, j)])
 
-
-    def _busca_jogadas_Trie(self, i: int, j: int, horizontal: bool,
-                       letras_disponiveis: dict[str, int], 
-                       prefixo: list[str, tuple[int, int]], 
-                       no: dict[str, dict], conectou: bool=False, 
-                       pontos: int=0, multiplicadores: int=1,
-                       palavras_ortogonais: list[str]=[], infos=[]):
-        #infos = infos + [(i, j)]
-
-        if "\n" in no and sum(letras_disponiveis.values()) < self.num_letras and  conectou and self.tab.pos_vaga_ou_fora_tab(i, j):
-            bonus = 50 if sum(letras_disponiveis.values()) == 0 and self.num_letras == 7 else 0
-            self.jogadas.append((self.pos_i, self.pos_j, self.horizontal, prefixo, pontos * multiplicadores + sum([ponto[0] for ponto in palavras_ortogonais]) + bonus))#, palavras_ortogonais))
-        
-        if self.primeiro_lance and i==7 and j==7:
-            conectou = True
-
-        if i >= 15 or j >= 15:
-            return
-
-        if self.tab.tabuleiro[i][j].isdigit():
-            for letra in letras_disponiveis:
-                ortogonais = self.tab.get_letras_ortogonais(i, j, not horizontal)
-                if letra in no and (letra in ortogonais or "*" in ortogonais):
-                    palavra_horizontal = self.tab.palavra_ortogonal(i, j, not horizontal, letra) #tbm deve influenciar a pontuacao
-                    if len(palavra_horizontal[3]) <= 1 or (len(palavra_horizontal[3]) > 1 and self.trie.busca(palavra_horizontal[3])):
-                        especial = int(self.tab.quadrados_especiais[i][j])
-                        valor_letra = self.tab.valor_letras[letra] * (especial if 0 < especial < 4 else 1)
-                        multiplicador = (especial//2 if 3 < especial else 1)
-                        
-                        if len(palavra_horizontal[3]) > 1:
-                            palavras_ortogonal = [(self.tab.pontos_palavra(*palavra_horizontal), palavra_horizontal)]
-                            conectou = True
-                        else:
-                            palavras_ortogonal = []
-
-                        letras_q_sobram = letras_disponiveis.copy() #fazer essa copia n parece razoavel, deve haver um caminho melhor# so faco a copia no caso de a letra ser usada
-                        letras_q_sobram[letra] -= 1
-                        if letras_q_sobram[letra] <= 0:
-                            letras_q_sobram.pop(letra, None)
-                        self._busca_jogadas_Trie(i + (not horizontal), j + horizontal, horizontal, 
-                                            letras_q_sobram, prefixo + letra, no[letra], conectou,
-                                            pontos + valor_letra, multiplicadores * multiplicador,
-                                            palavras_ortogonais + palavras_ortogonal, infos)
-
-                elif letra == "?": #Joker
-                    for possib in no:
-                        ortogonais = self.tab.get_letras_ortogonais(i, j, not horizontal)
-                        if possib != "\n" and (possib in ortogonais or "*" in ortogonais):
-                            palavra_horizontal = self.tab.palavra_ortogonal(i, j, not horizontal, possib.upper())
-                            if len(palavra_horizontal[3]) <= 1 or (len(palavra_horizontal[3]) > 1 and self.trie.busca(palavra_horizontal[3])):
-                                especial = int(self.tab.quadrados_especiais[i][j])
-                                multiplicador = (especial//2 if 3 < especial else 1)
-                                palavras_ortogonal = [(self.tab.pontos_palavra(*palavra_horizontal), palavra_horizontal)] if len(palavra_horizontal[3]) > 1 else []
-                                if len(palavra_horizontal[3]) > 1:
-                                    palavras_ortogonal = [(self.tab.pontos_palavra(*palavra_horizontal), palavra_horizontal)]
-                                    conectou = True
-                                else:
-                                    palavras_ortogonal = []
-                                
-                                letras_q_sobram = letras_disponiveis.copy() #fazer essa copia n parece razoavel, deve haver um caminho melhor # so faco a copia no caso de a letra ser usada
-                                letras_q_sobram[letra] -= 1
-                                if letras_q_sobram[letra] <= 0:
-                                    letras_q_sobram.pop(letra, None)
-                                self._busca_jogadas_Trie(i + (not horizontal), j + horizontal, horizontal, 
-                                                    letras_q_sobram, prefixo + possib.upper(), no[possib], conectou,
-                                                    pontos, multiplicadores * multiplicador,
-                                                    palavras_ortogonais + palavras_ortogonal, infos)
-
-        else:
-            return
-            if (letra := self.tab.tabuleiro[i][j]).lower() in no:
-                valor_letra = self.tab.valor_letras[letra] if letra.islower() else 0
-                self._busca_jogadas(i + (not horizontal), j + horizontal, horizontal,
-                                    letras_disponiveis, prefixo + letra, no[letra.lower()], True,
-                                    pontos + valor_letra, multiplicadores,
-                                    palavras_ortogonais, infos)
     """def calc_pontos(self, prefixo: list[str, tuple[int, int]]):
         pontos = 0
         for letra in prefixo:
             pontos += letra"""
 
-def identifica_repetições(lista:list):
-    repeticoes = {}
-    for elem in lista:
-        if elem in repeticoes:
-            repeticoes[elem] += 1
-        else:
-            repeticoes[elem] = 0
-    return { key: value for key, value in repeticoes.items() if value > 0}
-    
+
 if __name__ == "__main__":
     trie = Trie()
     trie.carrega_palavras( "br-sem-acentos.txt" )
@@ -296,16 +209,11 @@ if __name__ == "__main__":
 
     tab.print_tabuleiro(True)
     #print(bot.escolhe_melhor_jogada("fretaro", True))
-    #melhor_jogada = bot.escolhe_melhor_jogada("dumplso", True)
-    #print(melhor_jogada)
-
-    melhor_jogada, jogadas = bot_g.escolhe_melhor_jogada("dumplso", True)
+    melhor_jogada = bot.escolhe_melhor_jogada("dumplso", True)
     print(melhor_jogada)
 
-    repeticoes = identifica_repetições(jogadas)
-    print(jogadas)
-    print(repeticoes)
-    print(len(jogadas), sum([val for val in repeticoes.values()]))
+    melhor_jogada = bot_g.escolhe_melhor_jogada("dumplso", True)
+    print(melhor_jogada)
 
     #tab.adiciona_palavra(*melhor_jogada[:4])
     

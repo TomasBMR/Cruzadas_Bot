@@ -1,6 +1,5 @@
 import time
 from Trie import Trie
-
 class Gaddag:
     """ Estrutura em arvore que armazena e facilita a busca de uma lista de plavras.
         Semelhante a Trie mas cada palavra eh representada n vezes em que n eh o numero de letras na palavra"""
@@ -9,7 +8,7 @@ class Gaddag:
         self.num_palavras: int = 0
         self.num_nos: int = 0
 
-        if path:
+        if path is not None:
             self.carrega_palavras(path)
 
     def insere(self, palavra: str):
