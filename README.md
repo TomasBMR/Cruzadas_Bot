@@ -10,7 +10,7 @@ O critério atual para escolha entre os lances disponíveis é a pontuação de 
 
 ## TODO:
 - Usar Aprendizado por Reforço para escolher entre os lances disponíveis de forma mais estratégica
-- Adicionar paralelismo para executar mais partdas durante o treinamento po reforço
+- Adicionar paralelismo para executar mais partdas durante o treinamento por reforço
 
 
 ## Referências
