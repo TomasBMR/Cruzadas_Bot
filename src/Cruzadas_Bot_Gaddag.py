@@ -1,10 +1,10 @@
 import numpy as np
 
-from Trie import Trie
-from Gaddag import Gaddag
-from Tabuleiro import Tabuleiro
+from .Trie import Trie
+from .Gaddag import Gaddag
+from .Tabuleiro import Tabuleiro
 
-from Cruzadas_Bot import Bot
+#from Cruzadas_Bot import Bot
 
 class Gaddag_Bot:
     def __init__(self, tabuleiro: Tabuleiro, trie: Trie, gaddag: Gaddag):
@@ -278,9 +278,9 @@ if __name__ == "__main__":
 
     print("Carregou palavras")
 
-    tab = Tabuleiro(trie)
+    tab = Tabuleiro()
     bot_g = Gaddag_Bot( tab, trie, gaddag )
-    bot = Bot( tab, trie )
+    #bot = Bot( tab, trie )
 
 
     """tab.adiciona_palavra(7, 3, True, "salona")

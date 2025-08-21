@@ -4,16 +4,17 @@ import matplotlib.pyplot as plt
 from time import time
 import cProfile
 
-from Trie import Trie
-from Gaddag import Gaddag
-from Palavras_Cruzadas import Palavras_Cruzadas
-from Cruzadas_Bot import Bot
-from Cruzadas_Bot_Gaddag import Gaddag_Bot
+from src.Trie import Trie
+from src.Gaddag import Gaddag
+from src.Palavras_Cruzadas import Palavras_Cruzadas
+from src.Cruzadas_Bot import Bot
+from src.Cruzadas_Bot_Gaddag import Gaddag_Bot
 
 
 
-path = "br-sem-acentos.txt"
+path = "dicionarios/br-sem-acentos.txt"
 
+print("Carregando palavras")
 trie = Trie( path )
 gaddag = Gaddag( path )
 print("Palavras_Carregadas")
@@ -72,6 +73,7 @@ def rodar_partida_bot_Gaddag(prints: bool=False, seed: int=None):
 
 
 def compara_funcionamento_bots(prints: bool=False, seed: int=None):
+    """Função para buscar discrepancia a serem corrigidas no funcionamento dos bots"""
     jogo = Palavras_Cruzadas(trie, seed=seed)
     #bot = Bot(jogo.tabuleiro, trie)
     bot1 = Bot( jogo.tabuleiro, trie )
@@ -134,10 +136,10 @@ print(time()-t0)"""
 
 #cProfile.run('rodar_partida(prints=False, seed=42)')
 
-#jogadas = compara_funcionamento_bots(prints=True, seed=0)[-1]
+compara_funcionamento_bots(prints=True, seed=66)
 
 
-jogadas = rodar_partida_bot_Gaddag(prints=True)
+#jogadas = rodar_partida_bot_Gaddag(prints=True)
 
 
 #print([jogada[:5] for jogada in jogadas])

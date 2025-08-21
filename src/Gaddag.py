@@ -1,5 +1,4 @@
 import time
-from Trie import Trie
 
 class Gaddag:
     """ Estrutura em arvore que armazena e facilita a busca de uma lista de plavras.

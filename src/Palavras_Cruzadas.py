@@ -1,8 +1,7 @@
 import random
-import numpy as np
 
-from Tabuleiro import Tabuleiro
-from Trie import Trie
+from src.Tabuleiro import Tabuleiro
+from src.Trie import Trie
 
 class Palavras_Cruzadas():
     def __init__(self, trie: Trie, num_jogadores: int=2, seed: float=None):
@@ -26,7 +25,7 @@ class Palavras_Cruzadas():
         self.letras_jogadores = [self.sorteia_letras(7) for _ in range(num_jogadores)]
         self.pontos_jogadores = [0 for _ in range(num_jogadores)]
 
-        self.tabuleiro = Tabuleiro(self.trie)
+        self.tabuleiro = Tabuleiro( self.trie )
 
         self.contador_jogadas = 0
         self.jogador_atual = 0

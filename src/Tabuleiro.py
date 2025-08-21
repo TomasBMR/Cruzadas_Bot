@@ -1,4 +1,4 @@
-from Trie import Trie
+from src.Trie import Trie
 
 class Tabuleiro:
     def __init__(self, trie: Trie, tabuleiro: list[str] = None):
@@ -251,9 +251,7 @@ class Tabuleiro:
 
 
 if __name__ == "__main__":
-    path = "br-sem-acentos.txt"
-    trie = Trie(path)
-    tab = Tabuleiro(trie)
+    tab = Tabuleiro()
 
     #tab.tabuleiro[5] = "r0000ab0de00000"
     #tab.tabuleiro[7] = "00000astro00000"
